@@ -75,6 +75,7 @@ void ChainableLED::ledsOff(void)
     for (uint8_t i=0; i<_num_leds; i++) {
         setColorRGB(i, 0, 0, 0);
     }
+    flush();
 }
 
 void ChainableLED::sendByte(uint8_t b)
@@ -103,6 +104,12 @@ void ChainableLED::sendColor(uint8_t red, uint8_t green, uint8_t blue)
 
 void ChainableLED::setColorRGB(uint32_t led, uint8_t red, uint8_t green, uint8_t blue)
 {
+	_leds->rgb[led*3 + 0] = red;
+	_leds->rgb[led*3 + 1] = green;
+	_leds->rgb[led*3 + 2] = blue;
+}
+
+void ChainableLED::flush() {
     // Send data frame prefix (32x "0")
     sendByte(0x00);
     sendByte(0x00);
@@ -110,12 +117,7 @@ void ChainableLED::setColorRGB(uint32_t led, uint8_t red, uint8_t green, uint8_t
     sendByte(0x00);
 
     // Send color data for each one of the leds
-    for (uint8_t i=0; i<_num_leds; i++) {
-        if (i == led) {
-            _leds->rgb[i*3 + 0] = red;
-            _leds->rgb[i*3 + 1] = green;
-            _leds->rgb[i*3 + 2] = blue;
-        }
+    for (uint32_t i = 0; i < _num_leds; ++i) {
         sendColor(_leds->rgb[i*3 + 0], _leds->rgb[i*3 + 1], _leds->rgb[i*3 + 2]);
     }
 
@@ -154,4 +156,5 @@ void ChainableLED::setColorHSB(uint32_t led, float hue, float saturation, float 
     }
 
     setColorRGB(led, (uint8_t)(255.0f*r), (uint8_t)(255.0f*g), (uint8_t)(255.0f*b));
+    flush();
 }

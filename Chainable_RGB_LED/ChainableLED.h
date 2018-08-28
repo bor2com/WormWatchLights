@@ -43,6 +43,7 @@ public:
 
     void setColorRGB(uint32_t led, uint8_t red, uint8_t green, uint8_t blue);
     void setColorHSB(uint32_t led, float hue, float saturation, float brightness);
+    void flush();
     void ledsOff(void);
 
 private:

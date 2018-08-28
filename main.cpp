@@ -12,16 +12,19 @@ int main() {
     for (uint32_t i = 0; i < ledCount; i++) {
       leds.setColorRGB(i, 255, 0, 0);
     }
+    leds.flush();
     wait(1);
 
     for (uint32_t i = 0; i < ledCount; i++) {
       leds.setColorRGB(i, 0, 255, 0);
     }
+    leds.flush();
     wait(1);
 
     for (uint32_t i = 0; i < ledCount; i++) {
       leds.setColorRGB(i, 0, 0, 255);
     }
+    leds.flush();
     wait(1);
   }
 }
