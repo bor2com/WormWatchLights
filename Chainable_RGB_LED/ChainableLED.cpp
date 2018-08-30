@@ -59,15 +59,11 @@ ChainableLED::ChainableLED(PinName clk_pin, PinName data_pin, uint32_t number_of
     _data_pin(data_pin),
     _num_leds(number_of_leds)
 {
-    _leds = new led_val_t [number_of_leds];
+
+    leds.resize(number_of_leds);
     _clk_pin = 0;
     _data_pin = 0;
     ledsOff();
-}
-
-ChainableLED::~ChainableLED()
-{
-    delete [] _leds;
 }
 
 void ChainableLED::ledsOff(void)
@@ -104,9 +100,9 @@ void ChainableLED::sendColor(uint8_t red, uint8_t green, uint8_t blue)
 
 void ChainableLED::setColorRGB(uint32_t led, uint8_t red, uint8_t green, uint8_t blue)
 {
-	_leds->rgb[led*3 + 0] = red;
-	_leds->rgb[led*3 + 1] = green;
-	_leds->rgb[led*3 + 2] = blue;
+	leds[led].r = red;
+	leds[led].g = green;
+	leds[led].b = blue;
 }
 
 void ChainableLED::flush() {
@@ -117,8 +113,8 @@ void ChainableLED::flush() {
     sendByte(0x00);
 
     // Send color data for each one of the leds
-    for (uint32_t i = 0; i < _num_leds; ++i) {
-        sendColor(_leds->rgb[i*3 + 0], _leds->rgb[i*3 + 1], _leds->rgb[i*3 + 2]);
+    for (uint32_t i = 0; i < _num_leds; i++) {
+        sendColor(leds[i].r, leds[i].g, leds[i].b);
     }
 
     // Terminate data frame (32x "0")
@@ -128,33 +124,3 @@ void ChainableLED::flush() {
     sendByte(0x00);
 }
 
-template<typename T>
-T min(T a, T b) { return (a < b) ? a : b; }
-
-template<typename T>
-static inline T max(T a, T b) { return (a > b) ? a : b; }
-
-void ChainableLED::setColorHSB(uint32_t led, float hue, float saturation, float brightness)
-{
-    float r, g, b;
-    
-    hue = min<float>(hue, 1.0f);//constrain(hue, 0.0, 1.0);
-    hue = max<float>(hue, 0.0f);
-    saturation = min<float>(saturation, 1.0f);//constrain(saturation, 0.0, 1.0);
-    saturation = max<float>(saturation, 0.0f);
-    brightness = min<float>(brightness, 1.0f);//constrain(brightness, 0.0, 1.0);
-    brightness = max<float>(brightness, 0.0f);
-
-    if(saturation == 0.0f) {
-        r = g = b = brightness;
-    } else {
-        float q = (brightness < 0.5f) ? (brightness * (1.0f + saturation)) : (brightness + saturation - brightness * saturation);
-        float p = 2.0f * brightness - q;
-        r = hue2rgb(p, q, hue + 1.0f/3.0f);
-        g = hue2rgb(p, q, hue);
-        b = hue2rgb(p, q, hue - 1.0f/3.0f);
-    }
-
-    setColorRGB(led, (uint8_t)(255.0f*r), (uint8_t)(255.0f*g), (uint8_t)(255.0f*b));
-    flush();
-}

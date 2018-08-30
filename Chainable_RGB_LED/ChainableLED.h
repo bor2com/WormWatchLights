@@ -34,15 +34,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define CHAINABLELED_H
 
 #include "mbed.h"
+#include <vector>
 
 class ChainableLED
 {
 public:
     ChainableLED(PinName clk_pin, PinName data_pin, uint32_t number_of_leds);
-    ~ChainableLED();
 
     void setColorRGB(uint32_t led, uint8_t red, uint8_t green, uint8_t blue);
-    void setColorHSB(uint32_t led, float hue, float saturation, float brightness);
     void flush();
     void ledsOff(void);
 
@@ -51,16 +50,14 @@ private:
     DigitalOut _data_pin;
     uint32_t   _num_leds;
     
-    typedef union {
-        uint8_t rgb[3];
-        struct {
-            uint8_t r, g, b;
-        };
+    typedef struct {
+		uint8_t r, g, b;
     } led_val_t;
-    led_val_t *_leds;
+    std::vector<led_val_t> leds;
 
     void sendByte(uint8_t b);
     void sendColor(uint8_t red, uint8_t green, uint8_t blue);
 };
 
 #endif
+
